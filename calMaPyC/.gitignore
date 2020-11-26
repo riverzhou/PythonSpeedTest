@@ -2,8 +2,6 @@
 x64
 x86
 build
-*.vcxproj
-*.vcxproj.*
 *.dll
 *.so
 *.pyd
