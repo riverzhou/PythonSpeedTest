@@ -2,5 +2,8 @@
 x64
 x86
 build
+*.dll
+*.so
+*.pyd
 *.swp
 *~

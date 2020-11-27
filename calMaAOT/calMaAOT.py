@@ -3,7 +3,7 @@
 from numba.pycc import CC
 from numba import jit, njit
 import numpy as np
- 
+
 cc = CC('calMaAOT')
 
 cc.verbose = True
@@ -14,9 +14,9 @@ def calMaAOT(d, window):
 
     m = np.zeros(len(d),dtype=np.float64)
     for i in range(len(d)-window):
-        m[i+adjust] = np.sum(d[i:i+window])/window
+        m[i+adjust] = np.sum(d[i:i+window], dtype=np.int64)/window
     return m
 
 
 if __name__ == "__main__":
-    cc.compile() 
+    cc.compile()
