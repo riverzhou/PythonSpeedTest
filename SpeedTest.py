@@ -12,6 +12,7 @@ from calMaAOT  import calMaAOT
 from calMaPyC  import calMaPyC
 from calMaPyCG import calMaPyC as calMaPyCG
 
+loop = 5
 data = np.random.randint(1,2000000000,size=(1000000), dtype=np.int32)
 
 dlllib = npct.load_library("calMaDLL",".")
@@ -90,7 +91,27 @@ def checkRet(data):
     print('checkRet result True')
     return True
 
+def saveResult(result, loop):
+    t = ''
+    for i in range(loop):
+        t += '|{}'.format(i+1)
+    output = '# Test Result \n'
+    output += '|Name'+t+'|Avg|Faster| \n'
+    output += '|:---'*(loop+2)+'|---:| \n'
+    for key in result:
+        info = '|{}'.format(key)
+        for data in result[key]:
+            info += '|{}'.format('%.3f'%data)
+        info += '| \n'
+        output += info
+    f = open('Result.md', 'w', encoding='utf-8')
+    f.write(output)
+    f.close()
+    return
+
 def main():
+    global loop
+
     ret_calMa     = calMa(data,100)
     ret_calMaJIT  = calMaJIT(data,100)
     ret_calMaAOT  = calMaAOT(data,100)
@@ -105,17 +126,72 @@ def main():
     if ret != True:
         return
     
-    for i in range(3):
-        print('time:', i+1)
-        print('calMa    ', timeit("calMa(data,100)", setup="from __main__ import calMa,data", number = 5))
-        print('calMaJIT ', timeit("calMaJIT(data,100)", setup="from __main__ import calMaJIT,data", number = 5))
-        print('calMaAOT ', timeit("calMaAOT(data,100)", setup="from __main__ import calMaAOT,data", number = 5))
-        print('calMaCY  ', timeit("calMaCY(data,100)", setup="from __main__ import calMaCY,data", number = 5))
-        print('calMaPyC ', timeit("calMaPyC(data,100)", setup="from __main__ import calMaPyC,data", number = 5))
-        print('calMaPyCG', timeit("calMaPyCG(data,100)", setup="from __main__ import calMaPyCG,data", number = 5))
-        print('calMaDLL ', timeit("calMaDLL(data,100)", setup="from __main__ import calMaDLL,data", number = 5))
-        print('calMaDLLG', timeit("calMaDLLG(data,100)", setup="from __main__ import calMaDLLG,data", number = 5))
-        print('calMaOMP ', timeit("calMaOMP(data,100)", setup="from __main__ import calMaOMP,data", number = 5))
+    result = {}
+    for i in range(loop):
+        print('time : ', i+1)
+
+        key = 'calMa'
+        ret = timeit("calMa(data,100)", setup="from __main__ import calMa,data", number = 5)
+        print('%.10s : %s '%(key, ret))
+        if key not in result: result[key] = []
+        result[key].append(ret)
+            
+        key = 'calMaJIT'
+        ret = timeit("calMaJIT(data,100)", setup="from __main__ import calMaJIT,data", number = 5)
+        print('%.10s : %s '%(key, ret))
+        if key not in result: result[key] = []
+        result[key].append(ret)
+ 
+        key = 'calMaAOT'
+        ret = timeit("calMaAOT(data,100)", setup="from __main__ import calMaAOT,data", number = 5)
+        print('%.10s : %s '%(key, ret))
+        if key not in result: result[key] = []
+        result[key].append(ret)
+ 
+        key = 'calMaCY'
+        ret = timeit("calMaCY(data,100)", setup="from __main__ import calMaCY,data", number = 5)
+        print('%.10s : %s '%(key, ret))
+        if key not in result: result[key] = []
+        result[key].append(ret)
+ 
+        key = 'calMaPyC'
+        ret = timeit("calMaPyC(data,100)", setup="from __main__ import calMaPyC,data", number = 5)
+        print('%.10s : %s '%(key, ret))
+        if key not in result: result[key] = []
+        result[key].append(ret)
+ 
+        key = 'calMaPyCG'
+        ret = timeit("calMaPyCG(data,100)", setup="from __main__ import calMaPyCG,data", number = 5)
+        print('%.10s : %s '%(key, ret))
+        if key not in result: result[key] = []
+        result[key].append(ret)
+ 
+        key = 'calMaDLL'
+        ret = timeit("calMaDLL(data,100)", setup="from __main__ import calMaDLL,data", number = 5)
+        print('%.10s : %s '%(key, ret))
+        if key not in result: result[key] = []
+        result[key].append(ret)
+ 
+        key = 'calMaDLLG'
+        ret = timeit("calMaDLLG(data,100)", setup="from __main__ import calMaDLLG,data", number = 5)
+        print('%.10s : %s '%(key, ret))
+        if key not in result: result[key] = []
+        result[key].append(ret)
+ 
+        key = 'calMaOMP'
+        ret = timeit("calMaOMP(data,100)", setup="from __main__ import calMaOMP,data", number = 5)
+        print('%.10s : %s '%(key, ret))
+        if key not in result: result[key] = []
+        result[key].append(ret)
+
+    avgbase = sum(result['calMa'])/loop
+    for key in result:
+        avg = sum(result[key])/loop
+        faster = avgbase/avg
+        result[key].append(avg)
+        result[key].append(faster)
+
+    saveResult(result, loop)
     return
 
 if __name__ == '__main__':

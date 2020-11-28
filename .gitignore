@@ -4,3 +4,7 @@ x86
 build
 *.swp
 *~
+*.pdf
+*.png
+*.html
+
