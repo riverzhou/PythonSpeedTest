@@ -15,6 +15,18 @@ from calMaPyCG import calMaPyC as calMaPyCG
 loop = 5
 data = np.random.randint(1,2000000000,size=(1000000), dtype=np.int32)
 
+dictTest ={
+        'calMa'     : 'Stand Python Numpy',
+        'calMaJIT'  : 'Numba JIT',
+        'calMaAOT'  : 'Numba AOT',
+        'calMaCY'   : 'Cython Module',
+        'calMaPyC'  : 'C Module VC',
+        'calMaPyCG' : 'C Module GCC',
+        'calMaDLL'  : 'ctypes DLL VC',
+        'calMaDLLG' : 'ctypes DLL GCC',
+        'calMaOMP'  : 'ctypes DLL VC OpenMP',
+}
+
 dlllib = npct.load_library("calMaDLL",".")
 dlllib.calMaDLL.argtypes = [npct.ndpointer(dtype=np.int, ndim=1, flags="C_CONTIGUOUS"), npct.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS"), c_int, c_int]
 
@@ -96,11 +108,11 @@ def saveResult(result, loop):
     for i in range(loop):
         t += '|{}'.format(i+1)
     output = '# Test Result \n'
-    output += '|Name'+t+'|Avg|Faster| \n'
-    output += '|:---'*(loop+2)+'|---:| \n'
+    output += '|Name|Infomation'+t+'|Avg|Faster| \n'
+    output += '|:---|:---:'+'|---:'*(loop+2)+'| \n'
     for key in result:
-        info = '|{}'.format(key)
-        for data in result[key]:
+        info = '|{}|{}'.format(key, result[key][0])
+        for data in result[key][1:]:
             info += '|{}'.format('%.3f'%data)
         info += '| \n'
         output += info
@@ -127,66 +139,60 @@ def main():
         return
     
     result = {}
+    for key in dictTest:
+        result[key] = [dictTest[key]]
+
     for i in range(loop):
         print('time : ', i+1)
 
         key = 'calMa'
         ret = timeit("calMa(data,100)", setup="from __main__ import calMa,data", number = 5)
         print('%.10s : %s '%(key, ret))
-        if key not in result: result[key] = []
         result[key].append(ret)
             
         key = 'calMaJIT'
         ret = timeit("calMaJIT(data,100)", setup="from __main__ import calMaJIT,data", number = 5)
         print('%.10s : %s '%(key, ret))
-        if key not in result: result[key] = []
         result[key].append(ret)
  
         key = 'calMaAOT'
         ret = timeit("calMaAOT(data,100)", setup="from __main__ import calMaAOT,data", number = 5)
         print('%.10s : %s '%(key, ret))
-        if key not in result: result[key] = []
         result[key].append(ret)
  
         key = 'calMaCY'
         ret = timeit("calMaCY(data,100)", setup="from __main__ import calMaCY,data", number = 5)
         print('%.10s : %s '%(key, ret))
-        if key not in result: result[key] = []
         result[key].append(ret)
  
         key = 'calMaPyC'
         ret = timeit("calMaPyC(data,100)", setup="from __main__ import calMaPyC,data", number = 5)
         print('%.10s : %s '%(key, ret))
-        if key not in result: result[key] = []
         result[key].append(ret)
  
         key = 'calMaPyCG'
         ret = timeit("calMaPyCG(data,100)", setup="from __main__ import calMaPyCG,data", number = 5)
         print('%.10s : %s '%(key, ret))
-        if key not in result: result[key] = []
         result[key].append(ret)
  
         key = 'calMaDLL'
         ret = timeit("calMaDLL(data,100)", setup="from __main__ import calMaDLL,data", number = 5)
         print('%.10s : %s '%(key, ret))
-        if key not in result: result[key] = []
         result[key].append(ret)
  
         key = 'calMaDLLG'
         ret = timeit("calMaDLLG(data,100)", setup="from __main__ import calMaDLLG,data", number = 5)
         print('%.10s : %s '%(key, ret))
-        if key not in result: result[key] = []
         result[key].append(ret)
  
         key = 'calMaOMP'
         ret = timeit("calMaOMP(data,100)", setup="from __main__ import calMaOMP,data", number = 5)
         print('%.10s : %s '%(key, ret))
-        if key not in result: result[key] = []
         result[key].append(ret)
 
-    avgbase = sum(result['calMa'])/loop
+    avgbase = sum(result['calMa'][1:])/loop
     for key in result:
-        avg = sum(result[key])/loop
+        avg = sum(result[key][1:])/loop
         faster = avgbase/avg
         result[key].append(avg)
         result[key].append(faster)
