@@ -3,6 +3,7 @@
 from numba import jit, njit
 from timeit import timeit
 from ctypes import *
+from time import strftime,localtime
 
 import numpy as np
 import numpy.ctypeslib as npct
@@ -13,7 +14,10 @@ from calMaPyC  import calMaPyC
 from calMaPyCG import calMaPyC as calMaPyCG
 
 loop = 5
-data = np.random.randint(1,2000000000,size=(1000000), dtype=np.int32)
+subloop = 5
+length = 1000000
+#length = 10000
+data = np.random.randint(1,2000000000,size=(length), dtype=np.int32)
 
 dictTest ={
         'calMa'     : 'Stand Python Numpy',
@@ -103,11 +107,42 @@ def checkRet(data):
     print('checkRet result True')
     return True
 
+def getSysInfo():
+    try:
+        from SysInfo import sysinfo
+        dictInfo = sysinfo()
+    except:
+        print('Please install wmi using:\npip install wmi\n')
+        return ''
+    output = '###### System Information \n'
+    output += '||| \n'
+    output += '|:---|:---| \n'
+    for key in dictInfo:
+        output += '{}|{} \n'.format(key,dictInfo[key])
+    date = strftime("%Y-%m-%d %H:%M:%S", localtime()) 
+    output += '{}|{} \n'.format('TIME', date)
+    return output
+
+def getTestInfo():
+    global loop, subloop, length, data
+    datatype = type(data[0])
+    output = '###### Test Information \n'
+    output += '||| \n'
+    output += '|:---|:---| \n'
+    output += '{}|{} * {}| \n'.format('Loop Number', loop, subloop)
+    output += '{}|{}| \n'.format('Data Size', length)
+    output += '{}|{}| \n'.format('Data Type', str(datatype).lstrip('<class').rstrip('>').strip().strip("'"))
+    return output
+
 def saveResult(result, loop):
+    #output = '# Test Report \n'
+    output = ''
+    output += getSysInfo()
+    output += getTestInfo()
+    output += '###### Test Result \n'
     t = ''
     for i in range(loop):
         t += '|{}'.format(i+1)
-    output = '# Test Result \n'
     output += '|Name|Infomation'+t+'|Avg|Faster| \n'
     output += '|:---|:---:'+'|---:'*(loop+2)+'| \n'
     for key in result:
@@ -122,7 +157,7 @@ def saveResult(result, loop):
     return
 
 def main():
-    global loop
+    global loop, subloop
 
     ret_calMa     = calMa(data,100)
     ret_calMaJIT  = calMaJIT(data,100)
@@ -146,47 +181,47 @@ def main():
         print('time : ', i+1)
 
         key = 'calMa'
-        ret = timeit("calMa(data,100)", setup="from __main__ import calMa,data", number = 5)
+        ret = timeit("calMa(data,100)", setup="from __main__ import calMa,data", number = subloop)
         print('%.10s : %s '%(key, ret))
         result[key].append(ret)
             
         key = 'calMaJIT'
-        ret = timeit("calMaJIT(data,100)", setup="from __main__ import calMaJIT,data", number = 5)
+        ret = timeit("calMaJIT(data,100)", setup="from __main__ import calMaJIT,data", number = subloop)
         print('%.10s : %s '%(key, ret))
         result[key].append(ret)
  
         key = 'calMaAOT'
-        ret = timeit("calMaAOT(data,100)", setup="from __main__ import calMaAOT,data", number = 5)
+        ret = timeit("calMaAOT(data,100)", setup="from __main__ import calMaAOT,data", number = subloop)
         print('%.10s : %s '%(key, ret))
         result[key].append(ret)
  
         key = 'calMaCY'
-        ret = timeit("calMaCY(data,100)", setup="from __main__ import calMaCY,data", number = 5)
+        ret = timeit("calMaCY(data,100)", setup="from __main__ import calMaCY,data", number = subloop)
         print('%.10s : %s '%(key, ret))
         result[key].append(ret)
  
         key = 'calMaPyC'
-        ret = timeit("calMaPyC(data,100)", setup="from __main__ import calMaPyC,data", number = 5)
+        ret = timeit("calMaPyC(data,100)", setup="from __main__ import calMaPyC,data", number = subloop)
         print('%.10s : %s '%(key, ret))
         result[key].append(ret)
  
         key = 'calMaPyCG'
-        ret = timeit("calMaPyCG(data,100)", setup="from __main__ import calMaPyCG,data", number = 5)
+        ret = timeit("calMaPyCG(data,100)", setup="from __main__ import calMaPyCG,data", number = subloop)
         print('%.10s : %s '%(key, ret))
         result[key].append(ret)
  
         key = 'calMaDLL'
-        ret = timeit("calMaDLL(data,100)", setup="from __main__ import calMaDLL,data", number = 5)
+        ret = timeit("calMaDLL(data,100)", setup="from __main__ import calMaDLL,data", number = subloop)
         print('%.10s : %s '%(key, ret))
         result[key].append(ret)
  
         key = 'calMaDLLG'
-        ret = timeit("calMaDLLG(data,100)", setup="from __main__ import calMaDLLG,data", number = 5)
+        ret = timeit("calMaDLLG(data,100)", setup="from __main__ import calMaDLLG,data", number = subloop)
         print('%.10s : %s '%(key, ret))
         result[key].append(ret)
  
         key = 'calMaOMP'
-        ret = timeit("calMaOMP(data,100)", setup="from __main__ import calMaOMP,data", number = 5)
+        ret = timeit("calMaOMP(data,100)", setup="from __main__ import calMaOMP,data", number = subloop)
         print('%.10s : %s '%(key, ret))
         result[key].append(ret)
 
