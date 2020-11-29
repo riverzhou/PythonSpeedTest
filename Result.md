@@ -1,18 +1,27 @@
+###### System Information 
+||| 
+|:---|:---| 
+|OS|Microsoft Windows 10 家庭中文版 18363 64 位| 
+|CPU|Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz # Threads : 8| 
+|GPU 0|NVIDIA GeForce MX350 # 27.21.14.5730| 
+|GPU 1|Intel(R) UHD Graphics # 27.20.100.8935| 
+|MEM|8192 MB + 8192 MB  = 16384 MB| 
+|TIME|2020-11-29 20:28:01| 
 ###### Test Information 
 ||| 
 |:---|:---| 
-Loop Number|5 * 5| 
-Data Size|1000000| 
-Data Type|numpy.int32| 
+|Loop Number|5 * 5| 
+|Data Size|1,000,000| 
+|Data Type|numpy.int32| 
 ###### Test Result 
 |Name|Infomation|1|2|3|4|5|Avg|Faster| 
 |:---|:---:|---:|---:|---:|---:|---:|---:|---:| 
-|calMa|Stand Python Numpy|25.689|27.178|29.007|26.948|28.332|27.431|1.000| 
-|calMaJIT|Numba JIT|0.180|0.179|0.189|0.182|0.185|0.183|149.923| 
-|calMaAOT|Numba AOT|0.484|0.493|0.497|0.488|0.499|0.492|55.724| 
-|calMaCY|Cython Module|28.843|27.569|27.298|26.312|29.308|27.866|0.984| 
-|calMaPyC|C Module VC|0.119|0.114|0.113|0.110|0.121|0.115|237.594| 
-|calMaPyCG|C Module GCC|0.152|0.150|0.146|0.149|0.167|0.153|179.624| 
-|calMaDLL|ctypes DLL VC|0.115|0.116|0.108|0.109|0.121|0.114|241.226| 
-|calMaDLLG|ctypes DLL GCC|0.128|0.135|0.125|0.125|0.141|0.131|209.277| 
-|calMaOMP|ctypes DLL VC OpenMP|0.039|0.033|0.033|0.048|0.038|0.038|721.621| 
+|calMa|Standard Python Numpy|25.075|24.789|24.982|24.824|24.915|24.917|1.000| 
+|calMaJIT|Numba JIT|0.172|0.172|0.170|0.170|0.176|0.172|144.953| 
+|calMaAOT|Numba AOT|0.471|0.467|0.467|0.469|0.471|0.469|53.130| 
+|calMaCY|Cython Module|24.374|24.179|24.759|24.178|25.163|24.531|1.016| 
+|calMaPyC|C Module VC|0.105|0.104|0.107|0.103|0.109|0.106|235.672| 
+|calMaPyCG|C Module GCC|0.147|0.142|0.141|0.141|0.141|0.143|174.733| 
+|calMaDLL|ctypes DLL VC|0.106|0.104|0.108|0.103|0.106|0.105|236.188| 
+|calMaDLLG|ctypes DLL GCC|0.119|0.122|0.114|0.124|0.121|0.120|207.944| 
+|calMaOMP|ctypes DLL VC OpenMP|0.033|0.034|0.029|0.029|0.030|0.031|802.367| 

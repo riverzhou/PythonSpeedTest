@@ -6,7 +6,6 @@ build
 *.swp
 *~
 *.pdf
-*.png
 *.html
 *.log
 

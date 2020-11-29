@@ -123,9 +123,9 @@ def getSysInfo():
         if key == 'Name':
             name = dictInfo[key]
             continue
-        output += '{}|{} \n'.format(key,dictInfo[key])
+        output += '|{}|{}| \n'.format(key,dictInfo[key])
     date = strftime("%Y-%m-%d %H:%M:%S", localtime()) 
-    output += '{}|{} \n'.format('TIME', date)
+    output += '|{}|{}| \n'.format('TIME', date)
     return name, output
 
 def getTestInfo():
@@ -134,9 +134,9 @@ def getTestInfo():
     output = '###### Test Information \n'
     output += '||| \n'
     output += '|:---|:---| \n'
-    output += '{}|{} * {}| \n'.format('Loop Number', loop, subloop)
-    output += '{}|{:,}| \n'.format('Data Size', length)
-    output += '{}|{}| \n'.format('Data Type', str(datatype).lstrip('<class').rstrip('>').strip().strip("'"))
+    output += '|{}|{} * {}| \n'.format('Loop Number', loop, subloop)
+    output += '|{}|{:,}| \n'.format('Data Size', length)
+    output += '|{}|{}| \n'.format('Data Type', str(datatype).lstrip('<class').rstrip('>').strip().strip("'"))
     return output
 
 def saveResult(result, loop):
