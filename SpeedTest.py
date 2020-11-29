@@ -20,7 +20,7 @@ length = 1000000
 data = np.random.randint(1,2000000000,size=(length), dtype=np.int32)
 
 dictTest ={
-        'calMa'     : 'Stand Python Numpy',
+        'calMa'     : 'Standard Python Numpy',
         'calMaJIT'  : 'Numba JIT',
         'calMaAOT'  : 'Numba AOT',
         'calMaCY'   : 'Cython Module',
@@ -108,20 +108,25 @@ def checkRet(data):
     return True
 
 def getSysInfo():
+    name = ''
+    output = ''
     try:
         from SysInfo import sysinfo
         dictInfo = sysinfo()
     except:
         print('Please install wmi using:\npip install wmi\n')
-        return ''
+        return name, output
     output = '###### System Information \n'
     output += '||| \n'
     output += '|:---|:---| \n'
     for key in dictInfo:
+        if key == 'Name':
+            name = dictInfo[key]
+            continue
         output += '{}|{} \n'.format(key,dictInfo[key])
     date = strftime("%Y-%m-%d %H:%M:%S", localtime()) 
     output += '{}|{} \n'.format('TIME', date)
-    return output
+    return name, output
 
 def getTestInfo():
     global loop, subloop, length, data
@@ -130,14 +135,14 @@ def getTestInfo():
     output += '||| \n'
     output += '|:---|:---| \n'
     output += '{}|{} * {}| \n'.format('Loop Number', loop, subloop)
-    output += '{}|{}| \n'.format('Data Size', length)
+    output += '{}|{:,}| \n'.format('Data Size', length)
     output += '{}|{}| \n'.format('Data Type', str(datatype).lstrip('<class').rstrip('>').strip().strip("'"))
     return output
 
 def saveResult(result, loop):
-    #output = '# Test Report \n'
     output = ''
-    output += getSysInfo()
+    name, sysinfo = getSysInfo()
+    output += sysinfo
     output += getTestInfo()
     output += '###### Test Result \n'
     t = ''
@@ -151,7 +156,11 @@ def saveResult(result, loop):
             info += '|{}'.format('%.3f'%data)
         info += '| \n'
         output += info
-    f = open('Result.md', 'w', encoding='utf-8')
+    if name != '':
+        filename ='Result_{}.md'.format(name)
+    else:
+        filename = 'Result.md'
+    f = open(filename, 'w', encoding='utf-8')
     f.write(output)
     f.close()
     return
