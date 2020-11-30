@@ -15,6 +15,7 @@ from calMaPyCG import calMaPyC as calMaPyCG
 
 loop = 5
 subloop = 5
+winsize = 100
 length = 1000000
 #length = 10000
 data = np.random.randint(1,2000000000,size=(length), dtype=np.int32)
@@ -89,20 +90,25 @@ def printDiff(d1,d2):
         if d1[i] != d2[i]:
             print(i,d1[i],d2[i])
             
-def checkRet(data):
-    number = len(data)
+def checkRet(dictRet):
+    listKey = list(dictRet.keys())
+    number = len(listKey)
     for i in range(number-1):
         for n in range(i+1,number):
-            if (data[i].size != data[n].size):
-                print('checkRet size difference')
+            keyi = listKey[i]
+            keyn = listKey[n]
+            if (dictRet[keyi].size != dictRet[keyn].size):
+                print('checkRet size difference {} {}'.format(keyi, keyn))
                 return False
-    print('checkRet size', data[0].size)
+    print('checkRet size', dictRet[listKey[0]].size)
     for i in range(number-1):
         for n in range(i+1,number):
-            if ((data[i]==data[n]).all() != True):            
-                print('checkRet result False:', i, n)
-                print(type(data[i][0]), type(data[n][0]))
-                printDiff(data[i], data[n])
+            keyi = listKey[i]
+            keyn = listKey[n]
+            if ((dictRet[keyi] == dictRet[keyn]).all() != True):            
+                print('checkRet result False: {} {}'.format(keyi, keyn))
+                print(type(dictRet[keyi][0]), type(dictRet[keyn][0]))
+                printDiff(dictRet[keyi], dictRet[keyi])
                 return False
     print('checkRet result True')
     return True
@@ -129,13 +135,14 @@ def getSysInfo():
     return name, output
 
 def getTestInfo():
-    global loop, subloop, length, data
+    global loop, subloop, winsize, length, data
     datatype = type(data[0])
     output = '###### Test Information \n'
     output += '||| \n'
     output += '|:---|:---| \n'
     output += '|{}|{} * {}| \n'.format('Loop Number', loop, subloop)
     output += '|{}|{:,}| \n'.format('Data Size', length)
+    output += '|{}|{}| \n'.format('Window Size', winsize)
     output += '|{}|{}| \n'.format('Data Type', str(datatype).lstrip('<class').rstrip('>').strip().strip("'"))
     return output
 
@@ -166,19 +173,13 @@ def saveResult(result, loop):
     return
 
 def main():
-    global loop, subloop
+    global loop, subloop, winsize
 
-    ret_calMa     = calMa(data,100)
-    ret_calMaJIT  = calMaJIT(data,100)
-    ret_calMaAOT  = calMaAOT(data,100)
-    ret_calMaCY   = calMaCY(data,100)
-    ret_calMaPyC  = calMaPyC(data,100)
-    ret_calMaPyCG = calMaPyCG(data,100)
-    ret_calMaDLL  = calMaDLL(data,100)
-    ret_calMaDLLG = calMaDLLG(data,100)
-    ret_calMaOMP  = calMaOMP(data,100)
+    dictRet = {}
+    for key in dictTest:
+        dictRet[key] = eval(key)(data,winsize)
 
-    ret = checkRet([ret_calMa, ret_calMaJIT, ret_calMaAOT, ret_calMaCY, ret_calMaPyC, ret_calMaPyCG, ret_calMaDLL, ret_calMaDLLG, ret_calMaOMP])
+    ret = checkRet(dictRet)
     if ret != True:
         return
     
@@ -189,51 +190,13 @@ def main():
     for i in range(loop):
         print('time : ', i+1)
 
-        key = 'calMa'
-        ret = timeit("calMa(data,100)", setup="from __main__ import calMa,data", number = subloop)
-        print('%.10s : %s '%(key, ret))
-        result[key].append(ret)
+        for key in dictTest:
+            strCmd = '{}(data,winsize)'.format(key)
+            strSetup = 'from __main__ import {},data,winsize'.format(key)
+            ret = timeit(strCmd, setup=strSetup, number = subloop)
+            print('%.10s : %s '%(key, ret))
+            result[key].append(ret)
             
-        key = 'calMaJIT'
-        ret = timeit("calMaJIT(data,100)", setup="from __main__ import calMaJIT,data", number = subloop)
-        print('%.10s : %s '%(key, ret))
-        result[key].append(ret)
- 
-        key = 'calMaAOT'
-        ret = timeit("calMaAOT(data,100)", setup="from __main__ import calMaAOT,data", number = subloop)
-        print('%.10s : %s '%(key, ret))
-        result[key].append(ret)
- 
-        key = 'calMaCY'
-        ret = timeit("calMaCY(data,100)", setup="from __main__ import calMaCY,data", number = subloop)
-        print('%.10s : %s '%(key, ret))
-        result[key].append(ret)
- 
-        key = 'calMaPyC'
-        ret = timeit("calMaPyC(data,100)", setup="from __main__ import calMaPyC,data", number = subloop)
-        print('%.10s : %s '%(key, ret))
-        result[key].append(ret)
- 
-        key = 'calMaPyCG'
-        ret = timeit("calMaPyCG(data,100)", setup="from __main__ import calMaPyCG,data", number = subloop)
-        print('%.10s : %s '%(key, ret))
-        result[key].append(ret)
- 
-        key = 'calMaDLL'
-        ret = timeit("calMaDLL(data,100)", setup="from __main__ import calMaDLL,data", number = subloop)
-        print('%.10s : %s '%(key, ret))
-        result[key].append(ret)
- 
-        key = 'calMaDLLG'
-        ret = timeit("calMaDLLG(data,100)", setup="from __main__ import calMaDLLG,data", number = subloop)
-        print('%.10s : %s '%(key, ret))
-        result[key].append(ret)
- 
-        key = 'calMaOMP'
-        ret = timeit("calMaOMP(data,100)", setup="from __main__ import calMaOMP,data", number = subloop)
-        print('%.10s : %s '%(key, ret))
-        result[key].append(ret)
-
     avgbase = sum(result['calMa'][1:])/loop
     for key in result:
         avg = sum(result[key][1:])/loop
