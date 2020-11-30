@@ -24,6 +24,7 @@ data = np.random.randint(1,2000000000,size=(length), dtype=np.int32)
 dictTest ={
         'calMa'     : 'Standard Python Numpy',
         'calMaCov'  : 'Python Numpy Convolve',
+        'calMaOpt'  : 'Numpy Optimized Ma',
         'calMaJIT'  : 'Numba JIT',
         'calMaAOT'  : 'Numba AOT',
         'calMaCY'   : 'Cython Module',
@@ -38,6 +39,7 @@ dictTest ={
 dictTest ={
         'calMa'     : 'Standard Python Numpy',
         'calMaCov'  : 'Python Numpy Convolve',
+        'calMaOpt'  : 'Numpy Optimized Ma',
 }
 '''
 
@@ -91,6 +93,19 @@ def calMaCov(d, window):
     tail = np.zeros(window-adjust-1, dtype=np.float64)
     body = np.convolve(d, np.ones(window), 'valid')/window
     return np.concatenate([head, body, tail])
+
+def calMaOpt(d, window):
+    if d.size <= window:
+        return np.zeros(d.size, dtype=np.float64)
+    adjust = int(window/2)
+    n = d.size
+    m = np.zeros(n, dtype=np.float64)
+    s = np.sum(d[:window], dtype=np.int64)
+    m[adjust] = s/window
+    for i in range(1,n-window+1):
+        s = s - d[i-1] + d[i+window-1]
+        m[i+adjust] = s/window
+    return m
 
 def calMa(d, window):
     adjust = int(window/2)
