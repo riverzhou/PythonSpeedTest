@@ -64,12 +64,12 @@ static PyObject* py_calMaPyC(PyObject* self, PyObject* args) {
 	for (int i = 0; i < offset; i++) {
 		pOutput[i] = 0;
 	}
-	for (int i = len - offset; i < len; i++) {
+	for (int i = len - offset + 1; i < len; i++) {
 		pOutput[i] = 0;
 	}
 	int N = 2 * offset;
 	long long sum = 0;
-	for (int i = offset; i < len - offset; i++) {
+	for (int i = offset; i < len - offset + 1; i++) {
 		sum = 0;
 		for (int m = i - offset; m < i + offset; m++) {
 			sum += pInput[m];

@@ -14,6 +14,7 @@ from calMaPyC  import calMaPyC
 from calMaPyCG import calMaPyC as calMaPyCG
 
 loop = 5
+#loop = 2
 subloop = 5
 winsize = 100
 length = 1000000
@@ -22,6 +23,7 @@ data = np.random.randint(1,2000000000,size=(length), dtype=np.int32)
 
 dictTest ={
         'calMa'     : 'Standard Python Numpy',
+        'calMaCov'  : 'Python Numpy Convolve',
         'calMaJIT'  : 'Numba JIT',
         'calMaAOT'  : 'Numba AOT',
         'calMaCY'   : 'Cython Module',
@@ -31,6 +33,13 @@ dictTest ={
         'calMaDLLG' : 'ctypes DLL GCC',
         'calMaOMP'  : 'ctypes DLL VC OpenMP',
 }
+
+'''
+dictTest ={
+        'calMa'     : 'Standard Python Numpy',
+        'calMaCov'  : 'Python Numpy Convolve',
+}
+'''
 
 dlllib = npct.load_library("calMaDLL",".")
 dlllib.calMaDLL.argtypes = [npct.ndpointer(dtype=np.int, ndim=1, flags="C_CONTIGUOUS"), npct.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS"), c_int, c_int]
@@ -68,19 +77,26 @@ def calMaDLL(d, window):
 @njit
 def calMaJIT(d, window):
     adjust = int(window/2)
-
     n = d.size
     m = np.zeros(n, dtype=np.float64)
-    for i in range(n-window):
+    for i in range(n-window+1):
         m[i+adjust] = np.sum(d[i:i+window],dtype=np.int64)/window
     return m
 
+def calMaCov(d, window):
+    if d.size <= window:
+        return np.zeros(d.size, dtype=np.float64)
+    adjust = int(window/2)
+    head = np.zeros(adjust, dtype=np.float64)
+    tail = np.zeros(window-adjust-1, dtype=np.float64)
+    body = np.convolve(d, np.ones(window), 'valid')/window
+    return np.concatenate([head, body, tail])
+
 def calMa(d, window):
     adjust = int(window/2)
-
     n = d.size
     m = np.zeros(n, dtype=np.float64)
-    for i in range(n-window):
+    for i in range(n-window+1):
         m[i+adjust] = np.sum(d[i:i+window],dtype=np.int64)/window
     return m
 
@@ -98,7 +114,7 @@ def checkRet(dictRet):
             keyi = listKey[i]
             keyn = listKey[n]
             if (dictRet[keyi].size != dictRet[keyn].size):
-                print('checkRet size difference {} {}'.format(keyi, keyn))
+                print('checkRet size difference {} : {} != {} : {} '.format(keyi, dictRet[keyi].size, keyn, dictRet[keyn].size))
                 return False
     print('checkRet size', dictRet[listKey[0]].size)
     for i in range(number-1):
@@ -194,7 +210,7 @@ def main():
             strCmd = '{}(data,winsize)'.format(key)
             strSetup = 'from __main__ import {},data,winsize'.format(key)
             ret = timeit(strCmd, setup=strSetup, number = subloop)
-            print('%.10s : %s '%(key, ret))
+            print('{:<10} : {} '.format(key, ret))
             result[key].append(ret)
             
     avgbase = sum(result['calMa'][1:])/loop

@@ -13,7 +13,7 @@ def calMaAOT(d, window):
     adjust = int(window/2)
 
     m = np.zeros(len(d),dtype=np.float64)
-    for i in range(len(d)-window):
+    for i in range(len(d)-window + 1):
         m[i+adjust] = np.sum(d[i:i+window], dtype=np.int64)/window
     return m
 

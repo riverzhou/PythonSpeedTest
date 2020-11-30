@@ -32,12 +32,12 @@ DLL_EXPORT void __stdcall calMaDLL(const int* in, double* out, int len, int wind
 	for (int i = 0; i < offset; i++) {
 		out[i] = 0;
 	}
-	for (int i = len - offset; i < len; i++) {
+	for (int i = len - offset + 1; i < len; i++) {
 		out[i] = 0;
 	}
 	int N = 2 * offset;
 	long long sum = 0;
-	for (int i = offset; i < len - offset; i++) {
+	for (int i = offset; i < len - offset + 1; i++) {
 		sum = 0;
 		for (int m = i - offset; m < i + offset; m++) {
 			sum += in[m];
